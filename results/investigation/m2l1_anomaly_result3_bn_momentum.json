@@ -1,0 +1,20 @@
+{
+  "experiment": "corrected_val_simplified_head_bn_momentum_0.9",
+  "epochs": 3,
+  "train_time_seconds": 856.8645045757294,
+  "val_accuracy_per_epoch": [
+    0.9775000214576721,
+    0.9866666793823242,
+    0.9491666555404663
+  ],
+  "val_loss_per_epoch": [
+    0.07618121802806854,
+    0.03165337070822716,
+    0.13942891359329224
+  ],
+  "final_accuracy": 0.9491666666666667,
+  "final_precision": 1.0,
+  "final_recall": 0.8983333333333333,
+  "final_f1": 0.9464442493415277,
+  "final_roc_auc": 0.9997916666666666
+}

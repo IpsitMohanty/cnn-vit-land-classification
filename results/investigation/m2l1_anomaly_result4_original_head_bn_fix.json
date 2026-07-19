@@ -1,0 +1,21 @@
+{
+  "experiment": "corrected_val_original_head_bn_momentum_0.9_best_checkpoint",
+  "epochs": 3,
+  "train_time_seconds": 831.5253729820251,
+  "val_accuracy_per_epoch": [
+    0.9816666841506958,
+    0.9750000238418579,
+    0.9024999737739563
+  ],
+  "val_loss_per_epoch": [
+    0.048504363745450974,
+    0.07691419124603271,
+    0.27503708004951477
+  ],
+  "best_epoch_by_val_loss": 1,
+  "final_accuracy": 0.9816666666666667,
+  "final_precision": 0.9706840390879479,
+  "final_recall": 0.9933333333333333,
+  "final_f1": 0.9818780889621087,
+  "final_roc_auc": 0.9995555555555555
+}

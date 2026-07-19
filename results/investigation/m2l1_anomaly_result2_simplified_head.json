@@ -1,0 +1,20 @@
+{
+  "experiment": "corrected_validation_pipeline_simplified_head",
+  "epochs": 3,
+  "train_time_seconds": 1180.512280702591,
+  "val_accuracy_per_epoch": [
+    0.6791666746139526,
+    0.7091666460037231,
+    0.5383333563804626
+  ],
+  "val_loss_per_epoch": [
+    4.756112575531006,
+    2.1066863536834717,
+    3.806060791015625
+  ],
+  "final_accuracy": 0.5383333333333333,
+  "final_precision": 0.5201401050788091,
+  "final_recall": 0.99,
+  "final_f1": 0.6819747416762342,
+  "final_roc_auc": 0.7537055555555555
+}

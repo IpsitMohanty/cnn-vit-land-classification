@@ -1,0 +1,49 @@
+{
+  "eval_set_size": 1200,
+  "rows": [
+    {
+      "model": "CNN (Keras)",
+      "accuracy": 0.7291666666666666,
+      "precision": 0.8537859007832899,
+      "recall": 0.5486577181208053,
+      "f1": 0.6680286006128703,
+      "roc_auc": 0.7561780523578825,
+      "params_total": 20352897,
+      "params_trainable": 20340801,
+      "cpu_train_time_per_epoch_s": null
+    },
+    {
+      "model": "CNN (PyTorch)",
+      "accuracy": 0.9975,
+      "precision": 0.9966499162479062,
+      "recall": 0.9983221476510067,
+      "f1": 0.9974853310980721,
+      "roc_auc": 0.9999888883950397,
+      "params_total": 19575042,
+      "params_trainable": 19575042,
+      "cpu_train_time_per_epoch_s": null
+    },
+    {
+      "model": "CNN-ViT (Keras)",
+      "accuracy": 0.9966666666666667,
+      "precision": 1.0,
+      "recall": 0.9932885906040269,
+      "f1": 0.9966329966329966,
+      "roc_auc": 0.9999333303702387,
+      "params_total": 168600770,
+      "params_trainable": 151129090,
+      "cpu_train_time_per_epoch_s": 248.9
+    },
+    {
+      "model": "CNN-ViT (PyTorch)",
+      "accuracy": 0.9916666666666667,
+      "precision": 0.9916107382550335,
+      "recall": 0.9916107382550335,
+      "f1": 0.9916107382550335,
+      "roc_auc": 0.999849993333037,
+      "params_total": 39560706,
+      "params_trainable": 39560706,
+      "cpu_train_time_per_epoch_s": 251.0
+    }
+  ]
+}
