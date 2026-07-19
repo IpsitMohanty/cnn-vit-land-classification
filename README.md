@@ -4,6 +4,14 @@
 
 **Demo:** not yet deployed. Run it locally in three commands — see [`demo/`](demo/) (`pip install -r demo/requirements.txt && python demo/app.py`). Upload a satellite tile or click a bundled example for a live agricultural/non-agricultural prediction. Built for Hugging Face Spaces' free tier; deployment instructions are in [`demo/README.md`](demo/README.md).
 
+## What this is
+
+This is a completed capstone from IBM's *AI Engineering* Skills Network courses (Coursera). The brief IBM supplies is a scenario, not a real engagement: a fictional fertilizer company — named "NutriSphere Agritech" in IBM's lab materials — wants to assess agricultural land coverage in a new region before making market-expansion and sales-territory decisions there. Nothing in this repo was built for an actual client; the company and the business need are IBM's fictional framing for the exercise.
+
+The underlying task is a straightforward binary classification problem: label ~6,000 64×64 satellite image tiles as agricultural or non-agricultural land. IBM's curriculum has you build the same solution twice, once in Keras and once in PyTorch, across four stages: loading and augmenting the tile data, training a CNN classifier, extending it into a CNN-ViT hybrid via transfer learning, and comparing all four resulting models. The [notebook sequence](#notebook-sequence) below maps each of the 9 notebooks onto these stages.
+
+The lab scaffolding, dataset, architectures, and problem framing are IBM's. What's mine is everything below the notebooks: actually running all of it end-to-end on a local CPU box, finding and root-causing the BatchNorm anomaly in Finding #1, the controlled ablation that confirms it, the honest four-model comparison, and the demo app.
+
 ## Finding #1: `BatchNormalization(momentum=0.99)` and `BatchNorm(momentum=0.1)` are not the same default
 
 A Keras CNN and a PyTorch CNN, trained on identical data with an identical 3-epoch budget, landed 28 accuracy points apart (70% vs. 98.6% — see the 70% result, with context, in [`notebooks/04`](notebooks/04-keras-cnn-classifier.ipynb)). The cause: **Keras's `BatchNormalization` and PyTorch's `BatchNorm` use the same parameter name, `momentum`, for opposite conventions** — Keras's default (`0.99`) adapts running statistics ~10x slower than PyTorch's default (`0.1`). In a short training budget, Keras's running statistics never converge, so training-mode accuracy looks healthy while inference-mode (validation) accuracy collapses — briefly to *exact chance level* in the worst configuration tested.
@@ -20,7 +28,7 @@ On the clean, cross-framework-confound-free PyTorch comparison (plain CNN vs. CN
 
 ## Limitation: this benchmark is saturated
 
-Every model here — except the anomalous, unfixed Keras CNN — scores between 0.9998 and 0.99999 ROC-AUC on a 1,200-image binary eval set. At that ceiling, accuracy alone swings by nearly 5 points depending on which epoch of an otherwise-identical run you evaluate (§1) — well within the noise of a different random seed or split. Finding #2's *direction* (hybrid costs more, doesn't help) is a consistent pattern across both frameworks and is trustworthy; the exact percentage-point gaps in every table here are illustrative, not precise measurements. Details: [`results/ANALYSIS.md`](results/ANALYSIS.md) §4.
+The underlying task is a two-class split (agricultural vs. non-agricultural) over ~6,000 tiles — a small, simple benchmark that every model here saturates. Every model except the anomalous, unfixed Keras CNN scores between 0.9998 and 0.99999 ROC-AUC on the 1,200-image held-out eval set. At that ceiling, accuracy alone swings by nearly 5 points depending on which epoch of an otherwise-identical run you evaluate (§1) — well within the noise of a different random seed or split. Finding #2's *direction* (hybrid costs more, doesn't help) is a consistent pattern across both frameworks and is trustworthy; the exact percentage-point gaps in every table here are illustrative, not precise measurements. Details: [`results/ANALYSIS.md`](results/ANALYSIS.md) §4.
 
 ## What's here
 
@@ -32,17 +40,17 @@ Every model here — except the anomalous, unfixed Keras CNN — scores between 
 
 ## Notebook sequence
 
-| # | Notebook | What it covers |
-|---|---|---|
-| 1 | [`01-data-loading-memory-vs-generator`](notebooks/01-data-loading-memory-vs-generator.ipynb) | Sequential (lazy) vs. bulk in-memory image loading |
-| 2 | [`02-keras-data-pipeline`](notebooks/02-keras-data-pipeline.ipynb) | Hand-written Keras generator vs. `tf.data` (`.cache()`/`.prefetch()`) |
-| 3 | [`03-pytorch-data-pipeline`](notebooks/03-pytorch-data-pipeline.ipynb) | Custom `Dataset` vs. `ImageFolder`, both via `DataLoader` |
-| 4 | [`04-keras-cnn-classifier`](notebooks/04-keras-cnn-classifier.ipynb) | 38-layer CNN in Keras. **Scores 70% here — this is the BatchNorm-momentum anomaly, not a real result. See the note in the notebook and Finding #1 above / `results/ANALYSIS.md` §1.** |
-| 5 | [`05-pytorch-cnn-classifier`](notebooks/05-pytorch-cnn-classifier.ipynb) | Equivalent CNN in PyTorch (98.6%, unaffected by the Keras-specific bug) |
-| 6 | [`06-keras-vs-pytorch-cnn-comparison`](notebooks/06-keras-vs-pytorch-cnn-comparison.ipynb) | Evaluation on IBM's 20-epoch reference models (accuracy/precision/recall/F1/ROC-AUC/confusion matrices) |
-| 7 | [`07-keras-cnn-vit-hybrid`](notebooks/07-keras-cnn-vit-hybrid.ipynb) | CNN backbone + custom Vision Transformer encoder, in Keras — see Finding #3 for why its param count isn't comparable to notebook 8's |
-| 8 | [`08-pytorch-cnn-vit-hybrid`](notebooks/08-pytorch-cnn-vit-hybrid.ipynb) | Same hybrid in PyTorch, plus the depth=3-vs-12 comparison referenced in Finding #2 |
-| 9 | [`09-final-cnn-vit-evaluation`](notebooks/09-final-cnn-vit-evaluation.ipynb) | IBM's 20-epoch reference CNN-ViT models, both frameworks, full comparative evaluation |
+| # | Curriculum stage | Notebook | What it covers |
+|---|---|---|---|
+| 1 | Data loading & augmentation | [`01-data-loading-memory-vs-generator`](notebooks/01-data-loading-memory-vs-generator.ipynb) | Sequential (lazy) vs. bulk in-memory image loading |
+| 2 | Data loading & augmentation | [`02-keras-data-pipeline`](notebooks/02-keras-data-pipeline.ipynb) | Hand-written Keras generator vs. `tf.data` (`.cache()`/`.prefetch()`) |
+| 3 | Data loading & augmentation | [`03-pytorch-data-pipeline`](notebooks/03-pytorch-data-pipeline.ipynb) | Custom `Dataset` vs. `ImageFolder`, both via `DataLoader` |
+| 4 | CNN classifiers | [`04-keras-cnn-classifier`](notebooks/04-keras-cnn-classifier.ipynb) | 38-layer CNN in Keras. **Scores 70% here — this is the BatchNorm-momentum anomaly, not a real result. See the note in the notebook and Finding #1 above / `results/ANALYSIS.md` §1.** |
+| 5 | CNN classifiers | [`05-pytorch-cnn-classifier`](notebooks/05-pytorch-cnn-classifier.ipynb) | Equivalent CNN in PyTorch (98.6%, unaffected by the Keras-specific bug) |
+| 6 | CNN classifiers | [`06-keras-vs-pytorch-cnn-comparison`](notebooks/06-keras-vs-pytorch-cnn-comparison.ipynb) | Evaluation on IBM's 20-epoch reference models (accuracy/precision/recall/F1/ROC-AUC/confusion matrices) |
+| 7 | CNN-ViT hybrids (transfer learning) | [`07-keras-cnn-vit-hybrid`](notebooks/07-keras-cnn-vit-hybrid.ipynb) | CNN backbone + custom Vision Transformer encoder, in Keras — see Finding #3 for why its param count isn't comparable to notebook 8's |
+| 8 | CNN-ViT hybrids (transfer learning) | [`08-pytorch-cnn-vit-hybrid`](notebooks/08-pytorch-cnn-vit-hybrid.ipynb) | Same hybrid in PyTorch, plus the depth=3-vs-12 comparison referenced in Finding #2 |
+| 9 | Final metric comparison | [`09-final-cnn-vit-evaluation`](notebooks/09-final-cnn-vit-evaluation.ipynb) | IBM's 20-epoch reference CNN-ViT models, both frameworks, full comparative evaluation |
 
 ## Environment compatibility fixes
 
