@@ -1,5 +1,7 @@
 # Satellite Land Classification: CNN → CNN-ViT Hybrid
 
+[![tests](https://github.com/REPLACE_WITH_GITHUB_USERNAME/REPLACE_WITH_REPO_NAME/actions/workflows/tests.yml/badge.svg)](https://github.com/REPLACE_WITH_GITHUB_USERNAME/REPLACE_WITH_REPO_NAME/actions/workflows/tests.yml)
+
 **Demo:** not yet deployed. Run it locally in three commands — see [`demo/`](demo/) (`pip install -r demo/requirements.txt && python demo/app.py`). Upload a satellite tile or click a bundled example for a live agricultural/non-agricultural prediction. Built for Hugging Face Spaces' free tier; deployment instructions are in [`demo/README.md`](demo/README.md).
 
 ## Finding #1: `BatchNormalization(momentum=0.99)` and `BatchNorm(momentum=0.1)` are not the same default
