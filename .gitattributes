@@ -1,0 +1,13 @@
+# Normalize line endings to LF in the repo; Git still checks out the
+# platform-appropriate line ending locally, but diffs and history stay clean.
+* text=auto eol=lf
+
+# Binary files: never touch line endings, diff as opaque blobs.
+*.pth binary
+*.keras binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+
+# Notebooks are JSON; treat as text but don't try to diff them meaningfully.
+*.ipynb text eol=lf diff=jupyternotebook

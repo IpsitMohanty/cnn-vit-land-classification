@@ -6,7 +6,7 @@
 
 A Keras CNN and a PyTorch CNN, trained on identical data with an identical 3-epoch budget, landed 28 accuracy points apart (70% vs. 98.6% — see the 70% result, with context, in [`notebooks/04`](notebooks/04-keras-cnn-classifier.ipynb)). The cause: **Keras's `BatchNormalization` and PyTorch's `BatchNorm` use the same parameter name, `momentum`, for opposite conventions** — Keras's default (`0.99`) adapts running statistics ~10x slower than PyTorch's default (`0.1`). In a short training budget, Keras's running statistics never converge, so training-mode accuracy looks healthy while inference-mode (validation) accuracy collapses — briefly to *exact chance level* in the worst configuration tested.
 
-A controlled ablation (four experiments, changing one variable at a time, holding architecture constant across the decisive pair) confirms this is not a minor contributing factor but the complete explanation: fixing only `momentum` — same architecture, nothing else changed — recovers 98.17% validation accuracy, matching PyTorch. This is a **portable, generalizable finding**: it applies to anyone porting a BatchNorm-using model between these two frameworks, regardless of task or architecture. Full investigation, with the mechanism, the math, the ablation table, and why the collapse hit exact chance level rather than merely "worse": [`results/ANALYSIS.md`](results/ANALYSIS.md) §1.
+A controlled ablation (four experiments, changing one variable at a time, holding architecture constant across the decisive pair) confirms this is not a minor contributing factor but the complete explanation: fixing only `momentum` — same architecture, nothing else changed — recovers 98-99% validation accuracy (the exact figure varies run-to-run at this scale; see the caveat in §1), matching PyTorch. This is a **portable, generalizable finding**: it applies to anyone porting a BatchNorm-using model between these two frameworks, regardless of task or architecture. Full investigation, with the mechanism, the math, the ablation table, and why the collapse hit exact chance level rather than merely "worse": [`results/ANALYSIS.md`](results/ANALYSIS.md) §1.
 
 ## Finding #2: the CNN-ViT hybrid doesn't earn its complexity — on this task
 
@@ -18,7 +18,7 @@ On the clean, cross-framework-confound-free PyTorch comparison (plain CNN vs. CN
 
 ## Limitation: this benchmark is saturated
 
-Every model here — except the anomalous, unfixed Keras CNN — scores between 98.17% and 99.9999% ROC-AUC on a 1,200-image binary eval set. At that ceiling, a 0.5-point accuracy gap is ~6-12 images — well within the noise of a different random seed or split. Finding #2's *direction* (hybrid costs more, doesn't help) is a consistent pattern across both frameworks and is trustworthy; the exact percentage-point gaps in every table here are illustrative, not precise measurements. Details: [`results/ANALYSIS.md`](results/ANALYSIS.md) §4.
+Every model here — except the anomalous, unfixed Keras CNN — scores between 0.9998 and 0.99999 ROC-AUC on a 1,200-image binary eval set. At that ceiling, accuracy alone swings by nearly 5 points depending on which epoch of an otherwise-identical run you evaluate (§1) — well within the noise of a different random seed or split. Finding #2's *direction* (hybrid costs more, doesn't help) is a consistent pattern across both frameworks and is trustworthy; the exact percentage-point gaps in every table here are illustrative, not precise measurements. Details: [`results/ANALYSIS.md`](results/ANALYSIS.md) §4.
 
 ## What's here
 

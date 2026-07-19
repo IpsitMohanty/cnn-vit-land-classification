@@ -1,21 +1,30 @@
 {
-  "experiment": "corrected_val_original_head_bn_momentum_0.9_best_checkpoint",
+  "experiment": "corrected_val_original_head_bn_momentum_0.9_both_conventions",
   "epochs": 3,
-  "train_time_seconds": 831.5253729820251,
+  "train_time_seconds": 1170.75456905365,
   "val_accuracy_per_epoch": [
-    0.9816666841506958,
-    0.9750000238418579,
-    0.9024999737739563
+    0.971666693687439,
+    0.9941666722297668,
+    0.9858333468437195
   ],
   "val_loss_per_epoch": [
-    0.048504363745450974,
-    0.07691419124603271,
-    0.27503708004951477
+    0.14231617748737335,
+    0.018621984869241714,
+    0.04261299595236778
   ],
-  "best_epoch_by_val_loss": 1,
-  "final_accuracy": 0.9816666666666667,
-  "final_precision": 0.9706840390879479,
-  "final_recall": 0.9933333333333333,
-  "final_f1": 0.9818780889621087,
-  "final_roc_auc": 0.9995555555555555
+  "best_epoch_by_val_loss": 2,
+  "last_epoch_metrics": {
+    "accuracy": 0.9858333333333333,
+    "precision": 1.0,
+    "recall": 0.9716666666666667,
+    "f1": 0.9856297548605241,
+    "roc_auc": 0.9998555555555556
+  },
+  "best_epoch_metrics": {
+    "accuracy": 0.9941666666666666,
+    "precision": 0.9933444259567388,
+    "recall": 0.995,
+    "f1": 0.9941715237302248,
+    "roc_auc": 0.9998833333333333
+  }
 }

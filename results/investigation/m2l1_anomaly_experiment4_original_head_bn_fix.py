@@ -1,30 +1,13 @@
 """
-Fourth confirming experiment -- cleanly separates "does BatchNorm momentum
-alone explain the collapse" from "does head depth independently matter."
+Experiment 4 -- original 6-block head + BatchNorm(momentum=0.9) + corrected
+validation split. The controlled isolation against experiment 1 (identical
+architecture, only momentum changed).
 
-Prior three experiments, ROC-AUC and val_loss:
-  1. Original head (6 blocks), momentum=0.99 (default): AUC 0.514 (chance), loss 109->7.2->9.5
-  2. Simplified head (1 block), momentum=0.99 (default): AUC 0.754,          loss 4.8->2.1->3.8
-  3. Simplified head (1 block), momentum=0.9  (fixed):   AUC 0.9998,        loss 0.076->0.032->0.139
-
-Experiments 1 vs 2 changed head depth only (both at default momentum) and
-went from chance-level collapse to partial function. Experiment 3 then
-fixed momentum on top of the simplified head and reached near-parity with
-PyTorch. What's untested: the ORIGINAL 6-block head with momentum FIXED.
-This is the cleanest possible isolation:
-  - If this reaches ~98% too, BatchNorm momentum is confirmed as the
-    COMPLETE explanation, and head depth was never an independent cause.
-  - If this plateaus well below ~98%, head depth has a real, independent
-    negative effect beyond amplifying momentum immaturity.
-
-This version adds a ModelCheckpoint (monitor='val_loss', mode='min',
-save_best_only=True) -- matching how notebooks/04 and notebooks/05 handle
-epoch-to-epoch instability in a short training budget -- and evaluates the
-RELOADED BEST checkpoint with full sklearn metrics, rather than reporting
-whatever the last epoch happens to land on (which may not be the best
-epoch and would make the "accuracy" number and the "precision/recall/F1"
-numbers reflect two different models if taken from different points in
-the training log).
+Reports BOTH the last-epoch (end of training, no checkpoint selection) and
+best-epoch (ModelCheckpoint, monitor='val_loss', save_best_only=True)
+metrics, computed the same way as experiment 3's rerun, so the two are
+directly comparable under either convention rather than one experiment
+picking last-epoch and the other picking best-epoch.
 """
 import os
 import random
@@ -76,7 +59,7 @@ validation_generator = val_datagen.flow_from_directory(
     class_mode="binary", subset="validation", shuffle=False, seed=SEED,
 )
 
-# ORIGINAL 6-block head, but with the momentum fix applied
+# ORIGINAL 6-block head, with the momentum fix applied
 model = Sequential([
     Conv2D(32, (5, 5), activation="relu", padding="same", strides=(1, 1), kernel_initializer=HeUniform(), input_shape=(IMG_W, IMG_H, N_CHANNELS)),
     MaxPooling2D(2, 2), BN(),
@@ -109,31 +92,42 @@ fit = model.fit(train_generator, epochs=N_EPOCHS, validation_data=validation_gen
 elapsed = time.time() - start
 print(f"Training completed in {elapsed:.1f}s")
 
-# Reload the BEST checkpoint (lowest val_loss) and evaluate it with full metrics,
-# so accuracy/precision/recall/F1/ROC-AUC all describe the same model snapshot.
+
+def evaluate(m, label):
+    validation_generator.reset()
+    steps = int(np.ceil(validation_generator.samples / validation_generator.batch_size))
+    all_probs, all_labels = [], []
+    for _ in range(steps):
+        images, labels = next(validation_generator)
+        probs = m.predict(images, verbose=0).flatten()
+        all_probs.extend(probs)
+        all_labels.extend(labels)
+    all_preds = (np.array(all_probs) > 0.5).astype(int)
+    metrics = {
+        "accuracy": accuracy_score(all_labels, all_preds),
+        "precision": precision_score(all_labels, all_preds),
+        "recall": recall_score(all_labels, all_preds),
+        "f1": f1_score(all_labels, all_preds),
+        "roc_auc": roc_auc_score(all_labels, all_probs),
+    }
+    print(f"{label}: {json.dumps(metrics, indent=2)}")
+    return metrics
+
+
+last_epoch_metrics = evaluate(model, "last-epoch (end of training)")
+
 best_model = load_model(CHECKPOINT_PATH)
-validation_generator.reset()
-steps = int(np.ceil(validation_generator.samples / validation_generator.batch_size))
-all_probs, all_labels = [], []
-for _ in range(steps):
-    images, labels = next(validation_generator)
-    probs = best_model.predict(images, verbose=0).flatten()
-    all_probs.extend(probs)
-    all_labels.extend(labels)
-all_preds = (np.array(all_probs) > 0.5).astype(int)
+best_epoch_metrics = evaluate(best_model, "best-epoch (lowest val_loss checkpoint)")
 
 result = {
-    "experiment": "corrected_val_original_head_bn_momentum_0.9_best_checkpoint",
+    "experiment": "corrected_val_original_head_bn_momentum_0.9_both_conventions",
     "epochs": N_EPOCHS,
     "train_time_seconds": elapsed,
     "val_accuracy_per_epoch": fit.history["val_accuracy"],
     "val_loss_per_epoch": fit.history["val_loss"],
     "best_epoch_by_val_loss": int(np.argmin(fit.history["val_loss"]) + 1),
-    "final_accuracy": accuracy_score(all_labels, all_preds),
-    "final_precision": precision_score(all_labels, all_preds),
-    "final_recall": recall_score(all_labels, all_preds),
-    "final_f1": f1_score(all_labels, all_preds),
-    "final_roc_auc": roc_auc_score(all_labels, all_probs),
+    "last_epoch_metrics": last_epoch_metrics,
+    "best_epoch_metrics": best_epoch_metrics,
 }
 print(json.dumps(result, indent=2))
 
