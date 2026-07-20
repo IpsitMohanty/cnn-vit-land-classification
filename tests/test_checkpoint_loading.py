@@ -11,7 +11,7 @@ weights.
 
 This is deliberately a different file from demo/cnn_state_dict.pth (same
 architecture, same weights, but a separate copy that IS tracked because the
-demo needs to run standalone -- see test_demo.py, which always runs).
+demo needs to run standalone -- see test_demo_gradio.py, which always runs).
 """
 import pytest
 import torch
@@ -30,7 +30,7 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture(scope="module")
 def loaded_model():
-    from app import build_model  # noqa: E402  (import after skip check)
+    from app_gradio import build_model  # noqa: E402  (import after skip check)
 
     model = build_model()
     model.load_state_dict(torch.load(PYTORCH_CNN_CHECKPOINT, map_location="cpu"))

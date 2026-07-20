@@ -1,4 +1,9 @@
-gradio==6.20.0
-torch==2.8.0
-torchvision==0.23.0
-Pillow
+# Streamlit Cloud deploy target (app.py) -- deliberately excludes torch/
+# torchvision/gradio. Inference runs through cnn_model.onnx via
+# onnxruntime, verified to match the torch checkpoint's output to within
+# float32 noise (see export_onnx.py). Keeps installs small and cold
+# starts fast on Streamlit Community Cloud's free tier.
+streamlit==1.59.2
+onnxruntime==1.27.0
+numpy==1.26.0
+Pillow==10.4.0

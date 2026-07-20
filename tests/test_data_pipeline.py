@@ -3,15 +3,19 @@ Coverage D: data pipeline / preprocessing helpers.
 
 This repo doesn't have a standalone "data utils" module -- the loading
 and transform logic lives either inline in notebook cells (not meant to
-be imported) or in demo/app.py's `preprocess` pipeline (real, importable,
-and what actually runs at inference time). These tests cover the latter,
-since it's the one piece of data-pipeline code in this repo that exists
-outside a notebook.
+be imported) or in demo/app_gradio.py's `preprocess` pipeline (real,
+importable, torch-based). These tests cover that one directly.
+
+demo/app.py's onnxruntime pipeline has its own numpy-based preprocess
+with a different output contract (batched array, not a CHW tensor) --
+it's covered indirectly but more strongly by test_demo_streamlit.py's
+parity tests, which check its *output* matches this torch pipeline's
+output on real images, not just its shape/dtype in isolation.
 """
 import torch
 from PIL import Image
 
-from app import preprocess
+from app_gradio import preprocess
 
 
 def _make_image(color=(200, 100, 50), size=(64, 64)):

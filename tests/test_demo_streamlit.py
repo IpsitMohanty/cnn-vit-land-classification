@@ -1,16 +1,20 @@
 """
-Coverage C: the Gradio demo (demo/).
+Coverage C: the Streamlit/onnxruntime demo (demo/app.py) -- the version
+this repo actually deploys. Mirrors test_demo_gradio.py's coverage of
+the torch demo's predict-path contract; see that file's docstring for
+why these tests always run rather than skip.
 
-Unlike test_checkpoint_loading.py, these tests always run -- demo/
-bundles its own copy of the CNN checkpoint (demo/cnn_state_dict.pth),
-intentionally tracked in git specifically so the demo works standalone on
-a fresh clone. See the .gitignore negation rule and test_repo_integrity.py.
+app.py defers `import streamlit` to inside main(), so importing it here
+for CLASS_NAMES/predict does not require streamlit to be installed --
+onnxruntime and the bundled cnn_model.onnx are the only real
+dependencies of the predict path under test.
 """
 from pathlib import Path
 
 import pytest
 from PIL import Image
 
+import app_gradio
 from app import CLASS_NAMES, predict
 from conftest import DEMO_DIR
 
@@ -26,11 +30,17 @@ def _example_paths(subdir: str) -> list[Path]:
 
 AGRI_EXAMPLES = _example_paths("agri")
 NON_AGRI_EXAMPLES = _example_paths("non_agri")
+ALL_EXAMPLES = AGRI_EXAMPLES + NON_AGRI_EXAMPLES
 
 
 def test_six_bundled_examples_exist():
     assert len(AGRI_EXAMPLES) == 3
     assert len(NON_AGRI_EXAMPLES) == 3
+
+
+def test_class_names_match_gradio_demo():
+    """Both demos wrap the same underlying model -- their label sets must agree."""
+    assert CLASS_NAMES == app_gradio.CLASS_NAMES
 
 
 class TestPredictReturnsValidOutput:
@@ -52,11 +62,8 @@ class TestPredictReturnsValidOutput:
 
 
 class TestBundledExamplesClassifyCorrectly:
-    """These are real held-out tiles from the training distribution (see
-    demo/README.md) -- the model should get all six right with high
-    confidence, which was confirmed manually before this suite existed.
-    Encoding it as a test catches any future regression (e.g. swapping in
-    a different checkpoint, or a preprocessing change)."""
+    """Same rationale as test_demo_gradio.py: these are real held-out
+    tiles the model should get right with high confidence."""
 
     @pytest.mark.parametrize("path", AGRI_EXAMPLES)
     def test_agri_examples_classify_as_agricultural(self, path):
@@ -71,11 +78,28 @@ class TestBundledExamplesClassifyCorrectly:
         assert predicted == "non-agricultural", f"{path.name}: predicted {predicted}, {result}"
 
 
+class TestParityWithTorchDemo:
+    """The whole point of shipping an ONNX export is that it reproduces
+    the torch checkpoint's behavior, not a re-trained or re-derived one.
+    Pins down the parity that was manually verified when cnn_model.onnx
+    was generated (see export_onnx.py) as a standing regression check --
+    catches the checkpoint and the ONNX export drifting apart (e.g. the
+    .pth regenerated without re-running export_onnx.py)."""
+
+    @pytest.mark.parametrize("path", ALL_EXAMPLES)
+    def test_onnx_probabilities_match_torch_within_tolerance(self, path):
+        img = Image.open(path)
+        onnx_result = predict(img)
+        torch_result = app_gradio.predict(img)
+        for label in CLASS_NAMES:
+            assert onnx_result[label] == pytest.approx(torch_result[label], abs=1e-3), (
+                f"{path.name}/{label}: onnx={onnx_result[label]} torch={torch_result[label]}"
+            )
+
+
 class TestMalformedInputHandling:
-    """Gradio's Image component (type="pil") only ever hands predict() a
-    valid PIL.Image or None -- these tests cover the realistic space of
-    "malformed" input within that contract: unusual sizes, modes, and the
-    None case the app's own code explicitly guards against."""
+    """app.py's predict() takes a PIL.Image or None -- same contract as
+    the Gradio demo's Image component hands to its predict()."""
 
     def test_none_input_returns_none_without_raising(self):
         assert predict(None) is None

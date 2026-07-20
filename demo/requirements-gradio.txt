@@ -1,0 +1,8 @@
+# Local-only alternative UI (app_gradio.py) -- not used by the Streamlit
+# Cloud deploy, so it's kept out of requirements.txt to avoid pulling
+# torch/torchvision (~200MB+) into that install. Also needed by
+# export_onnx.py to regenerate cnn_model.onnx from cnn_state_dict.pth.
+gradio==6.20.0
+torch==2.8.0
+torchvision==0.23.0
+Pillow==10.4.0

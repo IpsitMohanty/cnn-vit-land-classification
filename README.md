@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/IpsitMohanty/cnn-vit-land-classification/actions/workflows/tests.yml/badge.svg)](https://github.com/IpsitMohanty/cnn-vit-land-classification/actions/workflows/tests.yml)
 
-**Demo:** not yet deployed. Run it locally in three commands — see [`demo/`](demo/) (`pip install -r demo/requirements.txt && python demo/app.py`). Upload a satellite tile or click a bundled example for a live agricultural/non-agricultural prediction. Built for Hugging Face Spaces' free tier; deployment instructions are in [`demo/README.md`](demo/README.md).
+**Demo:** **[LIVE_STREAMLIT_URL_PLACEHOLDER](LIVE_STREAMLIT_URL_PLACEHOLDER)** — or run it locally in three commands: `pip install -r demo/requirements.txt && streamlit run demo/app.py`. Upload a satellite tile or click a bundled example for a live agricultural/non-agricultural prediction. Deployed on Streamlit Community Cloud, inference via ONNX/onnxruntime (no torch in the deploy path). A torch/Gradio version of the same demo also runs locally — see [`demo/`](demo/) for both.
 
 ## What this is
 
@@ -36,7 +36,7 @@ The underlying task is a two-class split (agricultural vs. non-agricultural) ove
 |---|---|
 | [`notebooks/`](notebooks/) | The 9-notebook pipeline: data loading → CNN (Keras/PyTorch) → CNN-ViT hybrid (Keras/PyTorch) → final comparison. Executed end-to-end, results inline. |
 | [`results/`](results/) | The actual deliverable: root-cause analysis, four-model comparison, and the four confirming experiments behind Finding #1. |
-| [`demo/`](demo/) | Gradio app, deployable to Hugging Face Spaces. |
+| [`demo/`](demo/) | Streamlit app (deployed to Streamlit Community Cloud, ONNX inference, no torch); a Gradio/torch version also runs locally. |
 
 ## Notebook sequence
 
@@ -81,4 +81,4 @@ Each notebook downloads its own dataset (a ~20MB satellite-tile archive) on firs
 
 ## Origin
 
-Built on lab notebooks from IBM's *AI Engineering* Skills Network courses (Coursera). The lab scaffolding, explanatory markdown, and starter code are IBM's; the exercises, the BatchNorm root-cause investigation, the four-model comparison, and the Gradio demo were completed here. Course authorship is credited in each notebook's "Author" section.
+Built on lab notebooks from IBM's *AI Engineering* Skills Network courses (Coursera). The lab scaffolding, explanatory markdown, and starter code are IBM's; the exercises, the BatchNorm root-cause investigation, the four-model comparison, and the demo app (Streamlit, plus a local Gradio alternative) were completed here. Course authorship is credited in each notebook's "Author" section.

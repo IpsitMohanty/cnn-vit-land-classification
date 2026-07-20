@@ -89,3 +89,22 @@ class TestGitignoreBehavior:
             "not run on a fresh clone. (Not ignoring a path is not the same "
             "as it being committed.)"
         )
+
+    def test_onnx_export_is_not_ignored(self):
+        """No *.onnx rule exists in .gitignore, but this pins that down
+        behaviorally rather than assuming nobody adds one later -- the
+        Streamlit demo (the one this repo actually deploys) needs
+        cnn_model.onnx on a fresh clone just as much as app_gradio.py
+        needs cnn_state_dict.pth."""
+        assert not self._is_ignored("demo/cnn_model.onnx")
+
+    def test_onnx_export_is_actually_tracked_by_git(self):
+        result = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", "demo/cnn_model.onnx"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+        )
+        assert result.returncode == 0, (
+            "demo/cnn_model.onnx is not tracked by git -- the Streamlit demo "
+            "will not run on a fresh clone."
+        )

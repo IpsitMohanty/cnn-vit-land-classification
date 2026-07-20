@@ -1,13 +1,20 @@
 # Test suite dependencies. Deliberately does NOT include tensorflow --
 # no test in tests/ loads a Keras model (test_ablation_reproducibility.py
 # reads committed JSON results, not model files; the demo and checkpoint
-# tests are PyTorch-only). Keep it that way; TensorFlow is a multi-hundred-MB
-# install that this suite doesn't need.
+# tests are PyTorch/ONNX-only). Keep it that way; TensorFlow is a
+# multi-hundred-MB install that this suite doesn't need.
+#
+# Also deliberately does NOT include streamlit: app.py defers `import
+# streamlit` to inside main(), so testing its predict()/CLASS_NAMES
+# contract (test_demo_streamlit.py) only needs onnxruntime. Streamlit
+# itself is exercised by actually running the app, not by this suite.
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 pytest==8.3.3
 torch==2.8.0+cpu
 torchvision==0.23.0+cpu
+onnxruntime==1.27.0
+numpy==1.26.0
 Pillow
 gradio==6.20.0
 nbformat==5.10.4
