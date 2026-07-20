@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/IpsitMohanty/cnn-vit-land-classification/actions/workflows/tests.yml/badge.svg)](https://github.com/IpsitMohanty/cnn-vit-land-classification/actions/workflows/tests.yml)
 
-**Demo:** **[LIVE_STREAMLIT_URL_PLACEHOLDER](LIVE_STREAMLIT_URL_PLACEHOLDER)** — or run it locally in three commands: `pip install -r demo/requirements.txt && streamlit run demo/app.py`. Upload a satellite tile or click a bundled example for a live agricultural/non-agricultural prediction. Deployed on Streamlit Community Cloud, inference via ONNX/onnxruntime (no torch in the deploy path). A torch/Gradio version of the same demo also runs locally — see [`demo/`](demo/) for both.
+**Demo:** **[cnn-vit-land-classification.streamlit.app](https://cnn-vit-land-classification.streamlit.app/)** — or run it locally in three commands: `pip install -r demo/requirements.txt && streamlit run demo/app.py`. Upload a satellite tile or click a bundled example for a live agricultural/non-agricultural prediction. Deployed on Streamlit Community Cloud, inference via ONNX/onnxruntime (no torch in the deploy path). A torch/Gradio version of the same demo also runs locally — see [`demo/`](demo/) for both.
 
 ## What this is
 
